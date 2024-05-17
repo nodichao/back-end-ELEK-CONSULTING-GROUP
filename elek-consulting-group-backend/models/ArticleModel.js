@@ -6,9 +6,13 @@ const ArticleSchema = new mongoose.Schema({
         default : Date.now,
         required : true, 
     },
-    author : {
+    title : {
         type : String,
-        required : [true,"Un article doit nécessairement avoir un auteur"]
+        required : [true,"Un article doit nécessairement avoir un titre"]
+    },
+    image :{
+        type : String,
+        required:[true,"Un article doit avoir une image"]
     },
     content_article :{
          type : String, 

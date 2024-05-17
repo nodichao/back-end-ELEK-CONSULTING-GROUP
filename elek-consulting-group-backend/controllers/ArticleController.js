@@ -17,10 +17,10 @@ const ErrorHandler = (err)=>{
 // definition des methodes CRUD pour articles
 module.exports.createArticle = async (req, res)=>{
 
-    const {author,content_article,admin} = req.body;  
+    const {title,content_article,admin} = req.body;  
      try{
                
-           const article = await ArticleModel.create({author,content_article,admin});
+           const article = await ArticleModel.create({title,content_article,admin});
            console.log(article);
            res.status(201).json(article);
 

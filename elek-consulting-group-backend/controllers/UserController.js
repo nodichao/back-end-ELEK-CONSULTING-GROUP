@@ -1,6 +1,7 @@
 const UserModel = require('../models/UserModel');
 const jwt = require('jsonwebtoken');
-
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const maxAge = 60*60*24*3;
 const createToken = (id)=>{
 
@@ -53,7 +54,7 @@ module.exports.loginUser = async (req, res)=>{
             const user = await UserModel.login(email,password);
             const token = createToken(user._id);
             res.cookie('jwt',token,{maxAge:maxAge*1000});
-            res.status(200).json({id : user.id})
+            res.status(200).json(user);
       }catch(err){
             const errors = ErrorHandler(err);
             res.status(400).json(errors);
@@ -68,7 +69,7 @@ module.exports.loginUser = async (req, res)=>{
 module.exports.findUsers = async(req, res)=>{
       try{
             const users = await UserModel.find();
-            res.status(200).json(users)
+            res.status(200).json(users);
       }catch(err){
             console.error(err);
             res.status(400).json({error:'echec de l\'operation'});   
@@ -76,7 +77,9 @@ module.exports.findUsers = async(req, res)=>{
 }
 
 module.exports.findOneUser = async(req, res)=>{
-      const id = req.params.id;
+      let id = req.params.id;
+      /*id = mongoose.Types.ObjectId(id);*/
+ 
       try{
             const users = await UserModel.find({_id:id});
             res.status(200).json(users)
@@ -89,7 +92,7 @@ module.exports.findOneUser = async(req, res)=>{
 module.exports.updateUser = async(req, res)=>{
       const id = req.params.id;
       try{
-            const user = await UserModel.findByIdAndUpdate({_id: id},{...req.body});
+            const user = await UserModel.findByIdAndUpdate({_id: id},{...req.body},{new:true});
             res.status(200).json(user)
       }catch(err){
             console.error(err);
@@ -97,6 +100,26 @@ module.exports.updateUser = async(req, res)=>{
       }
 }
 
+module.exports.updateUserPass = async (req, res)=>{
+            const id = req.params.id;
+            const {oldPass,newPass} = req.body;
+
+            const user = await UserModel.findOne({_id:id});
+            if(user){
+                    const match = await bcrypt.compare(oldPass,user.password);
+                    if(match){
+                          const salt = await bcrypt.genSalt();
+                          const passToSave = await bcrypt.hash(newPass,salt);
+                          const updatedUser = await UserModel.findByIdAndUpdate({_id:id},{password:passToSave},{new:true});
+                          res.status(200).json({newPass});
+                    }else{
+                        res.status(400).json({error :'mot de passe incorrect'});
+                    }
+            }else{
+                  res.status(400).json({error :'user not found'});
+            }
+              
+}
 module.exports.deleteUser = async(req, res)=>{
       const id = req.params.id;
       try{

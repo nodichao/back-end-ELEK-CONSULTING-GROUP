@@ -1,4 +1,5 @@
 const RDVModel = require('../models/RDVModel');
+const UserModel = require('../models/UserModel');
 
 const ErrorHandler = (err)=>{
       // console.log('message: ',err.message,' code :',err.code);
@@ -19,12 +20,15 @@ const ErrorHandler = (err)=>{
 
 // definition des methodes CRUD pour articles
 module.exports.createRDV = async (req, res)=>{
-
-    const {date,note,status,pro} = req.body;  
+    const id = req.params.id;
+    const pro = await UserModel.findRandomUserByProfession("WEB DEVELOPPER SENIOR");
+    const {domain,date,hour,note} = req.body; 
+    console.log(hour);
+   const DateTime = new Date(`${date}T${hour}`);
      try{
                
-           const rdv = await RDVModel.create({date,note,status,pro});
-           console.log(rdv);
+          const rdv = await RDVModel.create({date:DateTime,domain,note,student:id,pro:pro._id});
+           
            res.status(201).json(rdv);
 
      }catch(err){
@@ -44,10 +48,10 @@ module.exports.findRDVs = async(req, res)=>{
       }
 }
 
-module.exports.findOneRDV = async(req, res)=>{
+module.exports.findRDVsForOneStudent = async(req, res)=>{
     const id = req.params.id;
     try{
-          const rdv = await RDVModel.find({_id:id}).populate('pro');
+          const rdv = await RDVModel.find({student:id}).populate('pro');
           res.status(200).json(rdv);
     }catch(err){
           console.error(err);

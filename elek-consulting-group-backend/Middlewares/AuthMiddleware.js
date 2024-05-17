@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const UserModel = require('../models/UserModel');
 
 const AuthMiddleware = (req, res, next)=>{
 
@@ -19,4 +20,38 @@ const AuthMiddleware = (req, res, next)=>{
             res.status(400).json({error :'user is not authenticated'});
     }
 }
-module.exports = {AuthMiddleware};
+
+const checkUser = (req,res,next)=>{
+
+    const token = req.cookies.jwt;
+   
+    if(token){
+        /*console.log('token existe')
+        next();*/
+        jwt.verify(token,'jojosecret',async (err,decodedToken)=>{
+            if(err){
+                console.log(err);
+                res.locals.user = null;
+                console.log('le voici'+res.locals.user);
+                next();
+            }else{
+                console.log(decodedToken);
+                 let user = await UserModel.findOne({_id : decodedToken.id});
+                 res.locals.user = user;
+                 console.log('le voici'+res.locals.user);
+                 //console.log(res.locals.user);
+                 //console.log(user);
+                 //console.log('trouve');
+                 next();
+            }
+       })
+    }else{
+        //console.log('token existe pas')
+        //next()
+        res.locals.user = null;
+        console.log('le voici'+res.locals.user);
+    
+        next();
+    }
+}
+module.exports = {AuthMiddleware,checkUser};

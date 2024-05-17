@@ -35,6 +35,12 @@ const UserSchema = new mongoose.Schema({
     },
     profession : {
         type: String
+    },
+    desc_profession:{
+        type : String
+    },
+    canevas:{
+        type :String
     }
 });
 
@@ -55,5 +61,18 @@ UserSchema.statics.login = async function (email,password){
             }
             throw Error('invalid email')
 }
+
+UserSchema.statics.findRandomUserByProfession = async function(profession) {
+    try {
+      const user = await this.aggregate([
+        { $match: { role :'pro', profession } },
+        { $sample: { size: 1 } }
+      ]);
+      return user[0]; // Le résultat est un tableau, nous renvoyons le premier élément
+    } catch (error) {
+      console.error(error);
+      throw new Error("Une erreur s'est produite lors de la recherche de l'utilisateur aléatoire.");
+    }
+  };
 const UserModel = mongoose.model('UserModel',UserSchema)
 module.exports = UserModel;

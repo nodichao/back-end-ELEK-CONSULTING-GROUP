@@ -11,11 +11,21 @@ const RDVSchema = new mongoose.Schema({
         type : String,
         required : [true,"Vous devez ecrire un message pour mieux cadrer le rdv"]
     },
+    student:{
+            type :  mongoose.Schema.Types.ObjectId,
+            ref:'UserModel',
+            required : [true,"Le rdv doit etre affecté a un etudiant"]
+    },
+    domain:{
+                type : String,
+                required:[true,'Le domaine de coaching est obligatoire']
+    },
     status:{
         type: String,
-        enum : ['pending', 'done','canceled'],
-        default : 'pending'
+        enum : ['en attente', 'confirmé','annulé'],
+        default : 'en attente'
     },
+    
     pro :{
         type : mongoose.Schema.Types.ObjectId, 
         ref:'UserModel', 

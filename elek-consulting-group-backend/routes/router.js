@@ -1,8 +1,9 @@
 const router  = require('express').Router();
-const {AuthMiddleware} = require('../Middlewares/AuthMiddleware');
-const {createUser, findUsers, updateUser, deleteUser, findOneUser, loginUser,logoutUser} = require('../controllers/UserController');
+const {AuthMiddleware,checkUser} = require('../Middlewares/AuthMiddleware');
+const {createUser, findUsers, updateUser, deleteUser, findOneUser, loginUser,logoutUser, updateUserPass} = require('../controllers/UserController');
 const{createArticle,findArticles,updateArticle,deleteArticle, findOneArticle} = require('../controllers/ArticleController');
-const {createRDV,findOneRDV,findRDVs,updateRDV,deleteRDV, findProRelatedToRDV} = require('../controllers/RDVController');
+const {createRDV,findOneRDV,findRDVs,updateRDV,deleteRDV, findProRelatedToRDV, findRDVsForOneStudent} = require('../controllers/RDVController');
+const { findCanevas, createCanevas } = require('../controllers/CanevasController');
 //liste des routes relatives a la gestion des utilisateurs
 router.post('/api/user',createUser);
 router.post('/api/login',loginUser);
@@ -10,6 +11,7 @@ router.get('/api/user_logout',logoutUser);
 router.get('/api/user', AuthMiddleware,findUsers);
 router.get('/api/user/:id',AuthMiddleware, findOneUser);
 router.put('/api/user/:id',AuthMiddleware, updateUser);
+router.put('/api/user/password/:id',AuthMiddleware, updateUserPass);
 router.delete('/api/user/:id',AuthMiddleware, deleteUser);
 
 
@@ -21,11 +23,17 @@ router.put('/api/article/:id',AuthMiddleware, updateArticle);
 router.delete('/api/article/:id',AuthMiddleware, deleteArticle);
 
 //liste des routes relatives aux RDVs
-router.post('/api/rdv',AuthMiddleware,createRDV);
+router.post('/api/rdv/:id',AuthMiddleware,createRDV);
 router.get('/api/rdv',AuthMiddleware,findRDVs);
-router.get('/api/rdv/:id',AuthMiddleware,findOneRDV);
-router.put('/api/rdv/:id', AuthMiddleware,updateRDV);
+router.get('/api/rdv/:id',AuthMiddleware,findRDVsForOneStudent);
+router.put('/api/rdv/:id',AuthMiddleware,updateRDV);
 router.delete('/api/rdv/:id', AuthMiddleware, deleteRDV);
+
+//liste des routes relatives aux canevas
+router.get('/api/canevas/:id',findCanevas);
+router.post('/api/canevas/:id',createCanevas);
+
+
 
 /*router.get('/cookie',(req,res)=>{
     res.cookie('name','jojo',{maxAge:1000*60*60,httpOnly:true});
